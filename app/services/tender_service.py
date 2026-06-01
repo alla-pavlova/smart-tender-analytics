@@ -86,3 +86,15 @@ def sync_tenders_from_prozorro(db: Session, limit: int = 5):
         saved_tenders.append(tender)
 
     return saved_tenders
+def get_tender_stats(db: Session):
+    tenders = db.query(Tender).all()
+
+    total_tenders = len(tenders)
+    total_amount = sum(tender.amount or 0 for tender in tenders)
+    average_amount = total_amount / total_tenders if total_tenders else 0
+
+    return {
+        "total_tenders": total_tenders,
+        "total_amount": total_amount,
+        "average_amount": round(average_amount, 2),
+    }

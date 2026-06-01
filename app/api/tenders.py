@@ -5,7 +5,11 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.schemas.tender_schema import TenderOut
-from app.services.tender_service import get_all_tenders, sync_tenders_from_prozorro
+from app.services.tender_service import (
+    get_all_tenders,
+    sync_tenders_from_prozorro,
+    get_tender_stats,
+)
 
 router = APIRouter(prefix="/tenders", tags=["Tenders"])
 
@@ -35,3 +39,7 @@ def sync_tenders(
     db: Session = Depends(get_db),
 ):
     return sync_tenders_from_prozorro(db=db, limit=limit)
+
+@router.get("/stats")
+def get_stats(db: Session = Depends(get_db)):
+    return get_tender_stats(db)
