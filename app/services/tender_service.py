@@ -1,32 +1,88 @@
 from sqlalchemy.orm import Session
 
 from app.models.tender import Tender
+from app.services.prozorro_service import fetch_latest_tenders, fetch_tender_details
 
 
-def get_all_tenders(db: Session):
-    return db.query(Tender).all()
+def get_all_tenders(
+    db: Session,
+    keyword: str | None = None,
+    cpv: str | None = None,
+    region: str | None = None,
+    min_amount: float | None = None,
+    max_amount: float | None = None,
+):
+    query = db.query(Tender)
+
+    if keyword:
+        query = query.filter(Tender.title.ilike(f"%{keyword}%"))
+
+    if cpv:
+        query = query.filter(Tender.cpv == cpv)
+
+    if region:
+        query = query.filter(Tender.region.ilike(f"%{region}%"))
+
+    if min_amount is not None:
+        query = query.filter(Tender.amount >= min_amount)
+
+    if max_amount is not None:
+        query = query.filter(Tender.amount <= max_amount)
+
+    return query.order_by(Tender.date_modified.desc()).all()
 
 
-def create_test_tender(db: Session):
-    tender_id = "UA-TEST-001"
+def sync_tenders_from_prozorro(db: Session, limit: int = 5):
+    tenders = fetch_latest_tenders(limit=limit)
 
-    existing = db.query(Tender).filter(Tender.tender_id == tender_id).first()
 
-    if existing:
-        return existing
+    saved_tenders = []
 
-    tender = Tender(
-        tender_id=tender_id,
-        title="Закупівля ноутбуків для навчального закладу",
-        region="Київ",
-        cpv="30200000-1",
-        amount=150000.0,
-        buyer="Тестовий замовник",
-        deadline="2026-06-30"
-    )
+    for tender_item in tenders:
+        tender_id = tender_item.get("id")
 
-    db.add(tender)
-    db.commit()
-    db.refresh(tender)
+        if not tender_id:
+            continue
 
-    return tender
+        existing = db.query(Tender).filter(Tender.tender_id == tender_id).first()
+
+        if existing:
+            saved_tenders.append(existing)
+            continue
+
+        details = fetch_tender_details(tender_id)
+
+        title = details.get("title", "No title")
+        buyer = details.get("procuringEntity", {}).get("name", "Unknown buyer")
+        amount = details.get("value", {}).get("amount", 0)
+
+        items = details.get("items", [])
+        cpv = None
+        region = None
+
+        if items:
+            cpv = items[0].get("classification", {}).get("id")
+            region = items[0].get("deliveryAddress", {}).get("region")
+
+        tender_period = details.get("tenderPeriod", {})
+        deadline = tender_period.get("endDate")
+        date_modified = tender_item.get("dateModified") or details.get("dateModified")
+
+        tender = Tender(
+            tender_id=tender_id,
+            title=title,
+            region=region,
+            cpv=cpv,
+            amount=amount,
+            buyer=buyer,
+            deadline=deadline,
+            date_modified=date_modified,
+        )
+
+        db.add(tender)
+        db.commit()
+        db.refresh(tender)
+
+        saved_tenders.append(tender)
+
+    return saved_tenders

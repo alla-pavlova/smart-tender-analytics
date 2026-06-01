@@ -21,3 +21,5 @@ class Tender(Base):
     buyer = Column(String)
 
     deadline = Column(String)
+
+    date_modified = Column(String)

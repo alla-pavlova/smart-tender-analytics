@@ -11,6 +11,7 @@ class TenderOut(BaseModel):
     amount: Optional[float] = None
     buyer: Optional[str] = None
     deadline: Optional[str] = None
+    date_modified: Optional[str] = None
 
     class Config:
         from_attributes = True
