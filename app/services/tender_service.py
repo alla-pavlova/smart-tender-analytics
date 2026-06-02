@@ -118,3 +118,27 @@ def get_stats_by_cpv(db: Session):
         cpv_stats[cpv]["total_amount"] += tender.amount or 0
 
     return list(cpv_stats.values())
+
+def get_top_buyers(db: Session):
+    tenders = db.query(Tender).all()
+
+    buyer_stats = defaultdict(
+        lambda: {
+            "buyer": "",
+            "count": 0,
+            "total_amount": 0,
+        }
+    )
+
+    for tender in tenders:
+        buyer = tender.buyer or "UNKNOWN"
+
+        buyer_stats[buyer]["buyer"] = buyer
+        buyer_stats[buyer]["count"] += 1
+        buyer_stats[buyer]["total_amount"] += tender.amount or 0
+
+    result = list(buyer_stats.values())
+
+    result.sort(key=lambda item: item["total_amount"], reverse=True)
+
+    return result
