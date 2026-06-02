@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models.tender import Tender
 from app.services.prozorro_service import fetch_latest_tenders, fetch_tender_details
-
+from collections import defaultdict
 
 def get_all_tenders(
     db: Session,
@@ -98,3 +98,23 @@ def get_tender_stats(db: Session):
         "total_amount": total_amount,
         "average_amount": round(average_amount, 2),
     }
+
+def get_stats_by_cpv(db: Session):
+    tenders = db.query(Tender).all()
+
+    cpv_stats = defaultdict(
+        lambda: {
+            "cpv": "",
+            "count": 0,
+            "total_amount": 0,
+        }
+    )
+
+    for tender in tenders:
+        cpv = tender.cpv or "UNKNOWN"
+
+        cpv_stats[cpv]["cpv"] = cpv
+        cpv_stats[cpv]["count"] += 1
+        cpv_stats[cpv]["total_amount"] += tender.amount or 0
+
+    return list(cpv_stats.values())

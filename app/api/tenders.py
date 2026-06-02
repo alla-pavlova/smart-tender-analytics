@@ -9,6 +9,7 @@ from app.services.tender_service import (
     get_all_tenders,
     sync_tenders_from_prozorro,
     get_tender_stats,
+    get_stats_by_cpv,
 )
 
 router = APIRouter(prefix="/tenders", tags=["Tenders"])
@@ -43,3 +44,7 @@ def sync_tenders(
 @router.get("/stats")
 def get_stats(db: Session = Depends(get_db)):
     return get_tender_stats(db)
+
+@router.get("/stats/by-cpv")
+def stats_by_cpv(db: Session = Depends(get_db)):
+    return get_stats_by_cpv(db)
