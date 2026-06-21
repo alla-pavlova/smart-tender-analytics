@@ -1,6 +1,8 @@
-from app.db.database import engine
-from app.models.tender import Tender
+from app.db.database import Base, engine
 
-Tender.metadata.create_all(bind=engine)
+from app.models.tender import Tender
+from app.models.user_filter import UserFilter
+
+Base.metadata.create_all(bind=engine)
 
 print("Database initialized")

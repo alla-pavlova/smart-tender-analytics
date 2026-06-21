@@ -4,3 +4,5 @@ __pycache__/
 .idea/
 *.db
 *.sqlite3
+
+test_smart_tender.db

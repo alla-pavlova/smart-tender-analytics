@@ -16,3 +16,6 @@ def root():
     return {
         "message": "SmartTender Analytics API is running"
     }
+
+# uvicorn app.main:app --reload --reload-dir app
+# uvicorn app.main:app --reload

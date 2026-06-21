@@ -1,81 +1,78 @@
 # SmartTender Analytics
 
-SmartTender Analytics is a tender monitoring and analytics platform built with Python and FastAPI.
+SmartTender Analytics is a FastAPI-based backend system for monitoring and analyzing public tenders from Prozorro with Telegram Bot integration.
 
-## Features
+The project is built as an MVP for tender synchronization, filtering, basic analytics and future AI-powered tender analysis.
 
-### Tender Synchronization
+---
 
-* Integration with Prozorro API
-* Loading tender information
-* Duplicate protection
-* Local tender storage
+## Current MVP
 
-### Analytics
+- Prozorro API integration
+- Tender synchronization
+- Tender details loading
+- Local database storage
+- Duplicate protection
+- Basic filtering
+- General tender statistics
+- Analytics by CPV codes
+- Top buyers analytics
+- Telegram Bot integration
 
-* General tender statistics
-* Analytics by CPV codes
-* Top buyers analytics
-* Tender filtering
+---
 
-### Telegram Bot
+## Telegram Bot
+
+Bot: `@smart_tender_analytics_bot`
 
 Available commands:
 
-* /start
-* /last
-* /stats
+- `/start` — show available commands
+- `/last` — show latest saved tenders
+- `/stats` — show tender statistics
 
-The bot provides quick access to tender information and analytics directly in Telegram.
+Planned commands:
+
+- `/settings`
+- `/keywords`
+- `/cpv`
+- `/region`
+
+---
 
 ## Tech Stack
 
-* Python 3.10
-* FastAPI
-* SQLAlchemy
-* SQLite
-* Aiogram
-* Prozorro API
+- Python 3.10
+- FastAPI
+- SQLAlchemy
+- SQLite
+- Aiogram
+- Requests
+- Prozorro API
+- Uvicorn
+
+PostgreSQL and Docker are planned for the next stages.
+
+---
 
 ## API Endpoints
 
+### Main
+
+- `GET /` — health check
+
 ### Tenders
 
-* GET /tenders
-* POST /tenders/sync
+- `GET /tenders/` — list saved tenders with filters
+- `POST /tenders/sync` — sync tenders from Prozorro API
 
 ### Analytics
 
-* GET /tenders/stats
-* GET /tenders/stats/by-cpv
-* GET /tenders/stats/top-buyers
+- `GET /tenders/stats` — general tender statistics
+- `GET /tenders/stats/by-cpv` — analytics grouped by CPV code
+- `GET /tenders/stats/top-buyers` — top buyers by total tender amount
 
-## Roadmap
+Swagger documentation is available at:
 
-### MVP v0.2
-
-* User filters
-* Keywords
-* CPV subscriptions
-* Region subscriptions
-
-### MVP v0.3
-
-* Telegram notifications
-* Automatic tender monitoring
-
-### Future
-
-* PostgreSQL
-* Dashboard
-* Competitor analytics
-* AI-powered tender analysis
-* CRM integration
-
-## Author
-
-Alla Pavlova
-
-Backend Developer
-
-FastAPI • PostgreSQL • Python • AI Integrations
+```text
+http://127.0.0.1:8000/docs
