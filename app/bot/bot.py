@@ -23,17 +23,17 @@ dp = Dispatcher()
 async def start_command(message: types.Message):
     await message.answer(
         "👋 Welcome to SmartTender Analytics!\n\n"
-        "Available commands:\n"
-        "/last - show latest tenders\n"
-        "/stats - show tender statistics\n"
-        "/settings - show your filters\n"
-        "/keywords - save keywords\n"
-        "/cpv - save CPV code\n"
-        "/region - save region\n"
-        "/mytenders - show tenders by your filters"
-
+        "Available commands:\n\n"
+        "📌 /last - show latest tenders\n"
+        "📊 /stats - show tender statistics\n\n"
+        "⚙️ Filter management:\n"
+        "🔑 /keywords - save keywords\n"
+        "📋 /cpv - save CPV code\n"
+        "🌍 /region - save region\n"
+        "🔎 /settings - show your filters\n"
+        "🎯 /mytenders - tenders matching your filters\n"
+        "🗑 /clearfilters - clear all filters"
     )
-
 
 @dp.message(Command("stats"))
 async def stats_command(message: types.Message):

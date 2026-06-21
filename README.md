@@ -1,78 +1,174 @@
 # SmartTender Analytics
 
-SmartTender Analytics is a FastAPI-based backend system for monitoring and analyzing public tenders from Prozorro with Telegram Bot integration.
+SmartTender Analytics — это backend-система на базе FastAPI для мониторинга и анализа государственных закупок Prozorro с интеграцией Telegram-бота.
 
-The project is built as an MVP for tender synchronization, filtering, basic analytics and future AI-powered tender analysis.
+Проект разработан как MVP (Minimum Viable Product) для синхронизации тендеров, хранения данных, фильтрации, аналитики и дальнейшего развития в сторону AI-аналитики тендерной документации.
 
----
+## Реализованный функционал MVP
 
-## Current MVP
+### Интеграция с Prozorro API
 
-- Prozorro API integration
-- Tender synchronization
-- Tender details loading
-- Local database storage
-- Duplicate protection
-- Basic filtering
-- General tender statistics
-- Analytics by CPV codes
-- Top buyers analytics
-- Telegram Bot integration
+* Получение тендеров через публичный API Prozorro
+* Синхронизация тендеров в локальную базу данных
+* Загрузка детальной информации о тендере
+* Защита от дублирования записей
+* Автоматическое сохранение данных
 
----
+### База данных
 
-## Telegram Bot
+* SQLAlchemy ORM
+* SQLite Database
+* Репозиторий данных (Repository Pattern)
+* Хранение тендеров
+* Хранение пользовательских фильтров
 
-Bot: `@smart_tender_analytics_bot`
+### Фильтрация тендеров
 
-Available commands:
+Поддерживаются фильтры:
 
-- `/start` — show available commands
-- `/last` — show latest saved tenders
-- `/stats` — show tender statistics
+* Ключевые слова
+* CPV-коды
+* Регион
+* Сумма закупки
 
-Planned commands:
+### Аналитика
 
-- `/settings`
-- `/keywords`
-- `/cpv`
-- `/region`
+Общая статистика:
 
----
+* Количество тендеров
+* Общая сумма закупок
+* Средняя стоимость тендера
 
-## Tech Stack
+Аналитика по CPV:
 
-- Python 3.10
-- FastAPI
-- SQLAlchemy
-- SQLite
-- Aiogram
-- Requests
-- Prozorro API
-- Uvicorn
+* Количество тендеров по каждому коду
+* Общая сумма закупок по CPV
 
-PostgreSQL and Docker are planned for the next stages.
+Аналитика заказчиков:
 
----
+* Топ заказчиков по объёму закупок
+* Количество тендеров по каждому заказчику
+
+### Telegram Bot
+
+Бот:
+
+@smart_tender_analytics_bot
+
+Доступные команды:
+
+* /start — список доступных команд
+* /last — последние тендеры
+* /stats — общая статистика
+* /settings — текущие пользовательские фильтры
+* /keywords — сохранить ключевые слова
+* /cpv — сохранить CPV-код
+* /region — сохранить регион
+* /mytenders — показать тендеры по сохранённым фильтрам
+* /clearfilters — очистить пользовательские фильтры
+
+### Архитектура проекта
+
+Проект реализован с использованием многоуровневой архитектуры:
+
+```text
+API Layer
+    ↓
+Services Layer
+    ↓
+Repositories Layer
+    ↓
+Models Layer
+    ↓
+Database
+```
+
+Структура проекта:
+
+```text
+app
+├── api
+├── bot
+├── core
+├── db
+│   └── repositories
+├── models
+├── schemas
+└── services
+
+tests
+├── test_api.py
+├── test_db.py
+├── test_services.py
+└── test_user_filters.py
+```
+
+### Тестирование
+
+Реализованы автоматические тесты:
+
+* API тесты
+* Database тесты
+* Service Layer тесты
+* User Filters тесты
+
+Текущий результат:
+
+```bash
+13 passed
+```
+
+## Технологический стек
+
+* Python 3.10
+* FastAPI
+* SQLAlchemy
+* SQLite
+* Aiogram
+* Requests
+* Pydantic
+* Pytest
+* Uvicorn
+* Prozorro API
 
 ## API Endpoints
 
 ### Main
 
-- `GET /` — health check
+* GET / — Health Check
 
 ### Tenders
 
-- `GET /tenders/` — list saved tenders with filters
-- `POST /tenders/sync` — sync tenders from Prozorro API
+* GET /tenders/ — список тендеров с фильтрацией
+* POST /tenders/sync — синхронизация тендеров из Prozorro API
 
 ### Analytics
 
-- `GET /tenders/stats` — general tender statistics
-- `GET /tenders/stats/by-cpv` — analytics grouped by CPV code
-- `GET /tenders/stats/top-buyers` — top buyers by total tender amount
+* GET /tenders/stats — общая статистика
+* GET /tenders/stats/by-cpv — аналитика по CPV
+* GET /tenders/stats/top-buyers — аналитика заказчиков
 
-Swagger documentation is available at:
+### Documentation
 
-```text
+Swagger UI:
+
 http://127.0.0.1:8000/docs
+
+ReDoc:
+
+http://127.0.0.1:8000/redoc
+
+## План развития
+
+Следующие этапы проекта:
+
+* PostgreSQL
+* Docker
+* GitHub Actions (CI/CD)
+* История изменений тендеров
+* Автоматические Telegram-уведомления
+* Dashboard
+* Аналитика конкурентов
+* AI/GPT анализ тендерной документации
+* CRM-модуль
+* Экспорт данных в Excel и Google Sheets
