@@ -1,8 +1,10 @@
+from collections import defaultdict
+
 from sqlalchemy.orm import Session
 
+from app.db.repositories import tender_repository
 from app.models.tender import Tender
 from app.services.prozorro_service import fetch_latest_tenders, fetch_tender_details
-from collections import defaultdict
 
 def get_all_tenders(
     db: Session,
@@ -12,24 +14,14 @@ def get_all_tenders(
     min_amount: float | None = None,
     max_amount: float | None = None,
 ):
-    query = db.query(Tender)
-
-    if keyword:
-        query = query.filter(Tender.title.ilike(f"%{keyword}%"))
-
-    if cpv:
-        query = query.filter(Tender.cpv == cpv)
-
-    if region:
-        query = query.filter(Tender.region.ilike(f"%{region}%"))
-
-    if min_amount is not None:
-        query = query.filter(Tender.amount >= min_amount)
-
-    if max_amount is not None:
-        query = query.filter(Tender.amount <= max_amount)
-
-    return query.order_by(Tender.date_modified.desc()).all()
+    return tender_repository.get_all(
+        db=db,
+        keyword=keyword,
+        cpv=cpv,
+        region=region,
+        min_amount=min_amount,
+        max_amount=max_amount,
+    )
 
 
 def sync_tenders_from_prozorro(db: Session, limit: int = 5):
@@ -44,7 +36,7 @@ def sync_tenders_from_prozorro(db: Session, limit: int = 5):
         if not tender_id:
             continue
 
-        existing = db.query(Tender).filter(Tender.tender_id == tender_id).first()
+        existing = tender_repository.get_by_tender_id(db, tender_id)
 
         if existing:
             saved_tenders.append(existing)
@@ -79,15 +71,12 @@ def sync_tenders_from_prozorro(db: Session, limit: int = 5):
             date_modified=date_modified,
         )
 
-        db.add(tender)
-        db.commit()
-        db.refresh(tender)
-
-        saved_tenders.append(tender)
+        saved_tenders.append(tender_repository.create(db, tender))
 
     return saved_tenders
+
 def get_tender_stats(db: Session):
-    tenders = db.query(Tender).all()
+    tenders = tender_repository.get_all_for_stats(db)
 
     total_tenders = len(tenders)
     total_amount = sum(tender.amount or 0 for tender in tenders)
@@ -100,7 +89,7 @@ def get_tender_stats(db: Session):
     }
 
 def get_stats_by_cpv(db: Session):
-    tenders = db.query(Tender).all()
+    tenders = tender_repository.get_all_for_stats(db)
 
     cpv_stats = defaultdict(
         lambda: {
@@ -120,7 +109,7 @@ def get_stats_by_cpv(db: Session):
     return list(cpv_stats.values())
 
 def get_top_buyers(db: Session):
-    tenders = db.query(Tender).all()
+    tenders = tender_repository.get_all_for_stats(db)
 
     buyer_stats = defaultdict(
         lambda: {

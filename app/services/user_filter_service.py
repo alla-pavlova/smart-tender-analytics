@@ -1,25 +1,16 @@
 from sqlalchemy.orm import Session
 
-from app.models.user_filter import UserFilter
+from app.db.repositories import tender_repository, user_filter_repository
+from app.models.tender import Tender
 
 
 def get_or_create_user_filter(db: Session, telegram_id: str):
-    user_filter = (
-        db.query(UserFilter)
-        .filter(UserFilter.telegram_id == telegram_id)
-        .first()
-    )
+    user_filter = user_filter_repository.get_by_telegram_id(db, telegram_id)
 
     if user_filter:
         return user_filter
 
-    user_filter = UserFilter(telegram_id=telegram_id)
-
-    db.add(user_filter)
-    db.commit()
-    db.refresh(user_filter)
-
-    return user_filter
+    return user_filter_repository.create(db, telegram_id)
 
 
 def update_keywords(db: Session, telegram_id: str, keywords: str):
@@ -36,10 +27,7 @@ def update_cpv(db: Session, telegram_id: str, cpv: str):
     user_filter = get_or_create_user_filter(db, telegram_id)
     user_filter.cpv = cpv
 
-    db.commit()
-    db.refresh(user_filter)
-
-    return user_filter
+    return user_filter_repository.save(db, user_filter)
 
 
 def update_region(db: Session, telegram_id: str, region: str):
